@@ -1,10 +1,7 @@
 package com.cisco.wwpo.csv2w9;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.AcroFields;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfStamper;
-import com.itextpdf.text.pdf.RadioCheckField;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -121,8 +118,20 @@ public class CSV2W9Service {
         stamper.close();
         reader.close();
 
+        addSignature(fileToSave, w9FormData.getSignature(), w9FormData.getSignatureDate());
     }
 
+    private void addSignature(String filename, String signature, String signatureDate) throws IOException, DocumentException {
+
+        PdfReader reader = new PdfReader(filename);
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(filename+"1.pdf"));
+        PdfContentByte canvas = stamper.getOverContent(1);
+        ColumnText.showTextAligned(canvas,Element.ALIGN_LEFT, new Phrase(signature), 130, 260, 0);
+        ColumnText.showTextAligned(canvas,Element.ALIGN_LEFT, new Phrase(signatureDate), 410, 260, 0);
+        stamper.close();
+        reader.close();
+
+    }
     public void printAvailableStates(AcroFields form, String fieldName){
 
         System.out.println("Available fields for :" + fieldName);

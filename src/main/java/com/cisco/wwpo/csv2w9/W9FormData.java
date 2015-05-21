@@ -70,6 +70,15 @@ public class W9FormData{
      */
     String employerIdNumber;
 
+
+
+    String signature;
+
+
+    String signatureDate;
+
+
+
     public void setSsn(String ssn) throws IllegalFormatWidthException {
         if(ssn.length() != 9){
             throw new IllegalFormatWidthException(9);
