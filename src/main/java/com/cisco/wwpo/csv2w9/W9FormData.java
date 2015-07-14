@@ -81,6 +81,7 @@ public class W9FormData{
 
     public void setSsn(String ssn) throws IllegalFormatWidthException {
         if(ssn.length() != 9){
+            System.err.println("There are " + ssn.length() + " characters in the string, but should be 9");
             throw new IllegalFormatWidthException(9);
         }
 

@@ -2,8 +2,6 @@ package com.cisco.wwpo.csv2w9;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by maustino on 5/20/2015.
  */
@@ -32,6 +30,8 @@ public class CSV2W9ServiceTest {
         formData.setEmployerIdNumber("876543210");  // format: nn-nnnnnnn
 
 
-        csv2W9Service.itext(formData, "C:\\Users\\maustino\\IdeaProjects\\WWPO-csv2w9\\src\\main\\resources\\fw9-copy-" + formData.getTaxClassification() + ".pdf");
+        formData.setSignature("Lenin");
+        formData.setSignatureDate("12/23/1921");
+        csv2W9Service.createPDF(formData, "C:\\Users\\maustino\\IdeaProjects\\WWPO-csv2w9\\src\\main\\resources\\fw9-copy-" + formData.getTaxClassification() + ".pdf");
     }
 }

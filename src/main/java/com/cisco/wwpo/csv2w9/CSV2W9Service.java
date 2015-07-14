@@ -1,8 +1,10 @@
 package com.cisco.wwpo.csv2w9;
 
+import com.google.common.io.Files;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -42,13 +44,13 @@ public class CSV2W9Service {
 
 
 
-    public void itext(W9FormData w9FormData, String fileToSave) throws IOException, DocumentException {
+    public void createPDF(W9FormData w9FormData, String fileToSave) throws IOException, DocumentException {
 
 
+        System.out.println("Save to: " + fileToSave);
         PdfReader reader = new PdfReader(w9File);
         PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(fileToSave));
         AcroFields form = stamper.getAcroFields();
-
 
 
         form.removeXfa();
@@ -108,25 +110,35 @@ public class CSV2W9Service {
         System.out.println(ssn.substring(3, 5));
         System.out.println(ssn.substring(5, 9));
 
-        form.setField(FIELD_ssn_f1_11, ssn.substring(0, 3));
-        form.setField(FIELD_ssn_f1_12, ssn.substring(3, 5));
-        form.setField(FIELD_ssn_f1_13, ssn.substring(5, 9));
+        if(ssn != null) {
+            form.setField(FIELD_ssn_f1_11, ssn.substring(0, 3));
+            form.setField(FIELD_ssn_f1_12, ssn.substring(3, 5));
+            form.setField(FIELD_ssn_f1_13, ssn.substring(5, 9));
+        }
 
-        form.setField(FIELD_employerId_f1_14, employerIdNumber.substring(0, 2));
-        form.setField(FIELD_employerId_f1_15, employerIdNumber.substring(2, 9));
-
+        if(employerIdNumber != null) {
+            form.setField(FIELD_employerId_f1_14, employerIdNumber.substring(0, 2));
+            form.setField(FIELD_employerId_f1_15, employerIdNumber.substring(2, 9));
+        }
         stamper.close();
         reader.close();
 
         addSignature(fileToSave, w9FormData.getSignature(), w9FormData.getSignatureDate());
+
+        boolean isremoved = new File(fileToSave).delete();
+        System.out.println("File [" + fileToSave + "] was " + (isremoved ? "removed": "NOT removed"));
     }
 
     private void addSignature(String filename, String signature, String signatureDate) throws IOException, DocumentException {
 
         PdfReader reader = new PdfReader(filename);
-        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(filename+"1.pdf"));
+
+        String signedFilename =Files.getNameWithoutExtension(filename) + "-signed."+ Files.getFileExtension(filename);
+        String signedFilepath = new File(filename).getParent() + "\\" + signedFilename;
+
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(signedFilepath));
         PdfContentByte canvas = stamper.getOverContent(1);
-        ColumnText.showTextAligned(canvas,Element.ALIGN_LEFT, new Phrase(signature), 130, 260, 0);
+        ColumnText.showTextAligned(canvas,Element.ALIGN_LEFT, new Phrase(signature, FontFactory.getFont(BaseFont.TIMES_ITALIC, 15, Font.ITALIC)), 130, 260, 0);
         ColumnText.showTextAligned(canvas,Element.ALIGN_LEFT, new Phrase(signatureDate), 410, 260, 0);
         stamper.close();
         reader.close();
